@@ -17,6 +17,6 @@ video_clip.audio.write_audiofile('temp.wav')
 
 #transcribing audio
 transcript = transcriber.transcribe(r"temp.wav")
-# transcript = transcriber.transcribe("./m"y-local-audio-file.wav")
+
 
 print(transcript.text)
