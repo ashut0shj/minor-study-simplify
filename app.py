@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 import os
 from transcript import VideoTranscriber
 
+'''todo add mime'''
 
 app = Flask(__name__)
 
