@@ -1,11 +1,9 @@
 from flask import Flask, render_template, request
-import os
 from transcript import VideoTranscriber
 
 '''todo add mime'''
 
 app = Flask(__name__)
-
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -15,11 +13,8 @@ def index():
 
         media = VideoTranscriber('temp.mp4')
         media.convert_to_audio()
-        
         transcript = media.transcribe()
-
         print(transcript)
-
 
         return render_template('result.html', transcript=transcript)
 
