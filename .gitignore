@@ -4,3 +4,5 @@
 test.py
 try.py
 /minor
+*.txt
+/__pycache__

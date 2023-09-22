@@ -1,11 +1,7 @@
 from flask import Flask, render_template, request
-import moviepy.editor as mp
-import assemblyai as aai
 import os
+from transcript import VideoTranscriber
 
-
-aai.settings.api_key = "6633f26c9fc144a38eb407f404483797"
-transcriber = aai.Transcriber()
 
 app = Flask(__name__)
 
@@ -16,20 +12,13 @@ def index():
         video = request.files['video']
         video.save('temp.mp4')
 
-        video_clip = mp.VideoFileClip('temp.mp4')
-        video_clip.audio.write_audiofile('temp.wav')
+        media = VideoTranscriber('temp.mp4')
+        media.convert_to_audio()
+        
+        transcript = media.transcribe()
 
-        transcript = transcriber.transcribe(r"temp.wav")
+        print(transcript)
 
-
-        print(transcript.text)
-
-        transcript = transcript.text
-
-        # Delete temporary files
-        video_clip.close()
-        os.remove('temp.mp4')
-        os.remove('temp.wav')
 
         return render_template('result.html', transcript=transcript)
 

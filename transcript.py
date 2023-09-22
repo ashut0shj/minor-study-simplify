@@ -13,15 +13,16 @@ class VideoTranscriber:
     def __init__(self,video_file_path):
         self.transcriber = aai.Transcriber()
         self.video_file_path = video_file_path
+        
 
-    def convert_to_video(self):
+    def convert_to_audio(self):
         video_clip = mp.VideoFileClip(self.video_file_path)
         video_clip.audio.write_audiofile('temp.wav')
+        video_clip.close()
+        os.remove('temp.mp4')
 
     def transcribe(self):
         transcript = self.transcriber.transcribe(r"temp.wav")
         os.remove('temp.wav')
-        
-        return transcript.text
 
-v = VideoTranscriber("a")
+        return transcript.text
