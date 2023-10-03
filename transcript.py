@@ -13,6 +13,7 @@ class VideoTranscriber:
     def __init__(self,video_file_path):
         self.transcriber = aai.Transcriber()
         self.video_file_path = video_file_path
+        #this is in it
         
 
     def convert_to_audio(self):
