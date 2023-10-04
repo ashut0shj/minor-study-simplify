@@ -13,7 +13,6 @@ class VideoTranscriber:
     def __init__(self,video_file_path):
         self.transcriber = aai.Transcriber()
         self.video_file_path = video_file_path
-        #from kanika
 
     def convert_to_audio(self):
         video_clip = mp.VideoFileClip(self.video_file_path)
