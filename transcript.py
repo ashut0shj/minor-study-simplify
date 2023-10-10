@@ -31,7 +31,7 @@ class Transcriber:
         video_clip.close()
         os.remove('temp.mp4')
         print("video converted")
-        self.audio_transcribe()
+        return self.audio_transcribe()
     
     def image_transcribe(self):
         image_path = r"text.png"
