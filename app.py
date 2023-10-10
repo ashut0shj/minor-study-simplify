@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from transcript import VideoTranscriber
+from transcript import Transcriber
 
 '''todo add mime'''
 
@@ -12,7 +12,7 @@ def index():
         media_type = video.content_type.split("/")
         file = 'temp.' + media_type[1]
         video.save(file)
-        media = VideoTranscriber(file)
+        media = Transcriber(file)
 
         if media_type[0] == 'video':
             media.convert_to_audio()
