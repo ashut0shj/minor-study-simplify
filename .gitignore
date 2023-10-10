@@ -6,3 +6,4 @@ try.py
 /minor
 *.txt
 /__pycache__
+/venv

@@ -18,17 +18,20 @@ class Transcriber:
         self.media_type = video_file_path.split(".")[-1]
         print(self.media_type)
         
+    
+    def audio_transcribe(self):
+        transcript = self.transcriber.transcribe(r"temp.wav")
+        os.remove('temp.wav')
+        print("Transcribing")
+        return transcript.text
+
     def video_transcribe(self):
         video_clip = mp.VideoFileClip(self.video_file_path)
         video_clip.audio.write_audiofile('temp.wav')
         video_clip.close()
         os.remove('temp.mp4')
-
-    def audio_transcribe(self):
-        transcript = self.transcriber.transcribe(r"temp.wav")
-        os.remove('temp.wav')
-
-        return transcript.text
+        print("video converted")
+        self.audio_transcribe()
     
     def image_transcribe(self):
         image_path = r"text.png"

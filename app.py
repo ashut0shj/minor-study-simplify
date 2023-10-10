@@ -16,12 +16,10 @@ def index():
 
         media = Transcriber(file)
 
-        if media_type[0] == 'video':
-            media.convert_to_audio()
-
+        #if media_type[0] == 'video':
         input("Press enter to continue with transcription")
         
-        transcript = media.transcribe()
+        transcript = media.video_transcribe()
         print(transcript)
 
         return render_template('result.html', transcript=transcript)
