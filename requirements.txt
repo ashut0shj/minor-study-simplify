@@ -1,0 +1,8 @@
+assemblyai
+moviepy
+flask
+tesseract
+pytesseract
+PIL
+tesseract
+python-pptx
