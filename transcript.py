@@ -1,12 +1,14 @@
 import moviepy.editor as mp
 import assemblyai as aai
 import os
+from PIL import Image 
+from pytesseract import pytesseract 
 
 with open("api_key.txt") as file:
     file_content = file.readline()
     api_key = file_content
 
-class VideoTranscriber:
+class Transcriber:
 
     aai.settings.api_key = api_key
 
@@ -25,3 +27,10 @@ class VideoTranscriber:
         os.remove('temp.wav')
 
         return transcript.text
+    
+    def image_transcribe(self):
+        image_path = r"text.png"
+        img = Image.open(image_path) 
+        text = pytesseract.image_to_string(img) 
+        print(text[:-1])
+

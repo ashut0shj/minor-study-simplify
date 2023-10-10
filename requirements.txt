@@ -1,3 +1,6 @@
 assemblyai
 moviepy
 flask
+tesseract
+pytesseract
+PIL
