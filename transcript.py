@@ -3,6 +3,7 @@ import assemblyai as aai
 import os
 from PIL import Image 
 from pytesseract import pytesseract 
+from pptx import Presentation
 
 with open("api_key.txt") as file:
     file_content = file.readline()
@@ -20,9 +21,9 @@ class Transcriber:
         
     
     def audio_transcribe(self):
-        transcript = self.transcriber.transcribe(r"temp.wav")
-        os.remove('temp.wav')
         print("Transcribing")
+        transcript = self.transcriber.transcribe(r"temp.wav")
+        os.remove(self.file_path)
         self.transcript = transcript.text
         return transcript.text
 
@@ -41,6 +42,21 @@ class Transcriber:
         os.remove(self.file_path)
         print(text[:-1])
         return text[:-1]
+
+
+    def ppt_transcribe(self):
+        prs = Presentation(self.file_path)
+        os.remove('temp.vnd.openxmlformats-officedocument.presentationml.presentation')
+        slide_titles = [] 
+        for slide in prs.slides: 
+            for shape in slide.shapes:
+                if shape.has_text_frame:
+                    text = shape.text.strip()
+                    if text: 
+                        slide_titles.append(text)
+        self.transcript = slide_titles #data is in a list
+        return self.transcript
+
 
     def printt(self):
         print(self.transcript)
