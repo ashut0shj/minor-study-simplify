@@ -19,7 +19,7 @@ def index():
         #if media_type[0] == 'video':
         #input("Press enter to continue with transcription")
         
-        transcript = media.ppt_transcribe()
+        transcript = media.image_transcribe()
         media.printt()
 
         return render_template('result.html', transcript=transcript)
