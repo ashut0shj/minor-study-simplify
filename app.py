@@ -25,7 +25,9 @@ def index():
             transcript = media.pdf_transcribe()
         elif media_type[0] == 'image':
             transcript = media.image_transcribe()
-        
+        else:
+            print("else stateent")
+            transcript = media.ppt_transcribe()
         return render_template('result.html', transcript=transcript)
 
     return render_template('index.html')
