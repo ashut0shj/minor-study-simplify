@@ -1,6 +1,6 @@
 from pptx import Presentation
 
-prs = Presentation(r"C:\Users\kanik\Downloads\Lecture 3 Agriculture and Soil.pptx") # load the ppt
+prs = Presentation(r"C:\Users\ashut\Downloads\Minor Project 3rd Sem PPT.pptx") # load the ppt
 slide_titles = [] # container for slide titles
 
 for slide in prs.slides: # iterate over each slide

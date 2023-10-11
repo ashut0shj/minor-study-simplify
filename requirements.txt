@@ -4,3 +4,5 @@ flask
 tesseract
 pytesseract
 PIL
+tesseract
+python-pptx

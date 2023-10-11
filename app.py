@@ -9,20 +9,18 @@ app = Flask(__name__)
 def index():
 
     if request.method == 'POST':
-        video = request.files['video']
-        media_type = video.content_type.split("/")
-        file = 'temp.' + media_type[1]
-        video.save(file)
+        file = request.files['file']
+        media_type = file.content_type.split("/")
+        file_name = 'temp.' + media_type[1]
+        file.save(file_name)
 
-        media = Transcriber(file)
+        media = Transcriber(file_name)
 
-        if media_type[0] == 'video':
-            media.convert_to_audio()
-
-        input("Press enter to continue with transcription")
+        #if media_type[0] == 'video':
+        #input("Press enter to continue with transcription")
         
-        transcript = media.transcribe()
-        print(transcript)
+        transcript = media.ppt_transcribe()
+        media.printt()
 
         return render_template('result.html', transcript=transcript)
 
