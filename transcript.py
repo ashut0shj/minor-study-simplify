@@ -4,6 +4,7 @@ import os
 from PIL import Image 
 from pytesseract import pytesseract 
 from pptx import Presentation
+import PyPDF2
 
 with open("api_key.txt") as file:
     file_content = file.readline()
@@ -40,7 +41,7 @@ class Transcriber:
         img = Image.open(image_path) 
         text = pytesseract.image_to_string(img) 
         os.remove(self.file_path)
-        print(text[:-1])
+        self.transcript = (text[:-1])
         return text[:-1]
 
 
@@ -57,6 +58,18 @@ class Transcriber:
         self.transcript = slide_titles #data is in a list
         return self.transcript
 
-
+    def pdf_transcribe(self):
+        pdf_file = open(self.file_path, "rb")
+        pdf_reader = PyPDF2.PdfReader(pdf_file)
+        text = []
+        for page_num in range(len(pdf_reader.pages)):
+            page = pdf_reader.pages[page_num]
+            text.append(page.extract_text())
+        pdf_file.close()
+        full_text = "\n".join(text)
+        self.transcript = full_text
+        os.remove(self.file_path)
+        return self.transcript
+                
     def printt(self):
         print(self.transcript)
