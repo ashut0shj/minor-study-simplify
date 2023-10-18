@@ -41,7 +41,7 @@ class Transcriber:
         img = Image.open(image_path) 
         text = pytesseract.image_to_string(img) 
         os.remove(self.file_path)
-        print(text[:-1])
+        self.transcript = (text[:-1])
         return text[:-1]
 
 
