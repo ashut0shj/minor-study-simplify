@@ -32,9 +32,12 @@ text_content = get_user_input()
 # Generate questions and options from the user input text
 questions_dict = text2questions(text_content)
 
-print((questions_dict[1]))
+file = open('quest.txt','w+')
 for i in cont(questions_dict):
     print(i)
+    file.write(i + '\n')
+file.close()
+
 #Print each question and options on separate lines
 for question_number, question_data in questions_dict.items():
     print(f"Question {question_number}: {question_data['question']}")
