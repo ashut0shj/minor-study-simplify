@@ -1,4 +1,13 @@
 from question_generation_main import QuestionGeneration
+def cont(dic):
+    l = []
+    for i in dic:
+        element = dic[i]
+        que = element['question'] + ',' + element['answer']
+        for j in element['options']  :
+            que = que + ',' + j
+        l.append(que)    
+    return l
 
 def get_user_input() -> str:
     """ Get text input from the user """
@@ -22,8 +31,10 @@ text_content = get_user_input()
 
 # Generate questions and options from the user input text
 questions_dict = text2questions(text_content)
-print(text_content)
 
+print((questions_dict[1]))
+for i in cont(questions_dict):
+    print(i)
 #Print each question and options on separate lines
 for question_number, question_data in questions_dict.items():
     print(f"Question {question_number}: {question_data['question']}")
