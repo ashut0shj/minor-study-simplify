@@ -32,12 +32,13 @@ if __name__ == "__main__":
     )
 
     print_qa(qa_list, show_answers=args.show_answers)
-    
+    print(qa_list)
     with open(r'subques.txt','w+') as file:
+        mcq = []
         file.write('question,answer\n')
         for qa in qa_list:
             ques, ans = qa['question'], qa['answer'] 
             try:
                 file.write(ques + '$' + ans + '\n')
             except:
-                ...
+                mcq.append([ques,ans])

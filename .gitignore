@@ -8,3 +8,4 @@ try.py
 /__pycache__
 /venv
 /question/__pycache__
+/question_generator/__pycache__
