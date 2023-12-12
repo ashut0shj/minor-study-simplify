@@ -26,21 +26,20 @@ def text2questions(text_content: str, n=5, o=4) -> dict:
 
     return q
 
-# Get user input
 text_content = get_user_input()
-
-# Generate questions and options from the user input text
+print(text_content)
+print("input done ...")
 questions_dict = text2questions(text_content)
+print("questions done !!!")
 
-file = open('quest.txt','w+')
-for i in cont(questions_dict):
-    print(i)
-    file.write(i + '\n')
-file.close()
-
-#Print each question and options on separate lines
 for question_number, question_data in questions_dict.items():
     print(f"Question {question_number}: {question_data['question']}")
     for option_number, option in enumerate(question_data['options'], start=1):
         print(f"  Option {option_number}: {option}")
     print(f"Answer: {question_data['answer']}\n")
+
+file = open(r'templates/quest.txt','w+')
+file.write('question,answer,choice1,choice2,choice3,choice4\n')
+for i in cont(questions_dict):
+    file.write(i + '\n')
+file.close()

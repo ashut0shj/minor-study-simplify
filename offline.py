@@ -2,8 +2,7 @@ import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.tokenize import sent_tokenize
 from typing import List, Tuple
-
-# Define your custom list of stopwords
+import os
 custom_stopwords = ["of", "that", "an", "than", "then", "be", "as", "can", "could", "the", "to", "and", "but", "or",
                     "for", "nor", "so", "yet", "is", "am", "are", "was", "were", "has", "have", "had", "in", "on", "at",
                     "by", "with", "about", "under", "between", "before", "after", "during", "through", "above", "below",
@@ -13,7 +12,6 @@ custom_stopwords = ["of", "that", "an", "than", "then", "be", "as", "can", "coul
 
 
 def preprocess_text(text):
-    # Remove dates and times using regular expressions
     text = re.sub(r'\b\d{1,2}/\d{1,2}/\d{4}\b', '', text)  # Remove dates
     text = re.sub(r'\b\d{1,2}:\d{2}(?:\s*[APMapm]{2})?\b', '', text)  # Remove times
 
@@ -21,25 +19,20 @@ def preprocess_text(text):
 
 
 def get_keywords(text: str, num_keywords=5) -> Tuple[List[str], List[str]]:
-    # Preprocess the input text
+
     text = preprocess_text(text)
 
-    # Remove extra spaces and split the text into sentences
     sentences = sent_tokenize(re.sub(r'\s+', ' ', text.strip()))
 
     max_words = 4 if len(text.split()) < 1000 else 5
 
-    # Remove custom stopwords from the text
     filtered_text = " ".join([word for word in text.split() if word.lower() not in custom_stopwords and not any(c.isdigit() for c in word)])
 
-    # Calculate TF-IDF scores for each word
     vectorizer = TfidfVectorizer()
     tfidf_matrix = vectorizer.fit_transform([filtered_text])
 
-    # Get the feature names (words)
     feature_names = vectorizer.get_feature_names_out()
 
-    # Sort the feature names by TF-IDF score
     important_words = [feature_names[i] for i in tfidf_matrix.toarray()[0].argsort()[-max_words:][::-1] if
                        len(feature_names[i]) > 3 and not any(c.isdigit() for c in feature_names[i])]
 
@@ -51,10 +44,7 @@ def get_keywords(text: str, num_keywords=5) -> Tuple[List[str], List[str]]:
         if sentences_with_keyword:
             keyword_sentences.extend(sentences_with_keyword)
 
-    # Use a set to remove duplicates
     unique_sentences = list(set(keyword_sentences))
-
-    # Join the unique sentences into a single paragraph
     paragraph = " ".join(unique_sentences)
 
     return important_words, paragraph
@@ -62,8 +52,8 @@ def get_keywords(text: str, num_keywords=5) -> Tuple[List[str], List[str]]:
 
 if __name__ == "__main__":
     input_text = input("Enter the text: ")
+    os.system('clear')
     important_words, paragraph = get_keywords(input_text)
-
     if important_words:
         print("Important words:")
         for word in important_words:
@@ -71,6 +61,10 @@ if __name__ == "__main__":
 
     if paragraph:
         print("\nUnique sentences containing important keywords in a single paragraph:")
+        os.system('clear')
+        with open(r'summ.txt','w+') as file:
+            file.write(paragraph)
+
         print(paragraph)
     else:
         print("No unique sentences found.")

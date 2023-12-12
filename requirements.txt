@@ -3,6 +3,10 @@ moviepy
 flask
 tesseract
 pytesseract
-PIL
 tesseract
 python-pptx
+PyPDF2
+spacy
+nltk
+scikit-learn
+genism

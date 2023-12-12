@@ -7,3 +7,4 @@ try.py
 *.txt
 /__pycache__
 /venv
+/question/__pycache__

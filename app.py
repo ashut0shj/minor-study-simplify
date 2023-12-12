@@ -11,7 +11,7 @@ def index():
         media_type = file.content_type.split("/")
         file_name = 'temp.' + media_type[1]
         file.save(file_name)
-        print("hello : ",media_type)
+        print("media : ",media_type)
         media = Transcriber(file_name)
 
         if media_type[0] == 'video':
@@ -27,9 +27,18 @@ def index():
         else:
             print("else stateent")
             transcript = media.ppt_transcribe()
+
+        s=''
+        for i in transcript : 
+            s = s + i + ' '
+        transcript = s
+        text = open(r"templates/trans.txt","w+")
+        text.write(transcript)
+        text.close()
         return render_template('result.html', transcript=transcript)
 
     return render_template('index.html')
+
 
 
 app.run(debug=True)

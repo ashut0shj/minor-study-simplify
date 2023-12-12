@@ -9,7 +9,7 @@ class IncorrectAnswerGenerator:
     '''
 
     def __init__(self, document):
-        # model required to fetch similar words
+        # model reququest.txtired to fetch similar words
         self.model = api.load("glove-wiki-gigaword-100")
         self.all_words = []
         for sent in sent_tokenize(document):
