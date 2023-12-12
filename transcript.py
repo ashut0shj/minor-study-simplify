@@ -73,3 +73,21 @@ class Transcriber:
                 
     def printt(self):
         print(self.transcript)
+        
+        
+def runner(media, media_type):
+    if media_type[0] == 'video':
+            transcript = media.video_transcribe()
+    elif media_type[0] == 'audio':
+        transcript = media.audio_transcribe()
+    elif media_type[0] == 'vnd.openxmlformats-officedocument.presentationml.presentation':
+        transcript = media.ppt_transcribe()
+    elif media_type[1] == 'pdf':
+        transcript = media.pdf_transcribe()
+    elif media_type[0] == 'image':
+        transcript = media.image_transcribe()
+    else:
+        print("else stateent")
+        transcript = media.ppt_transcribe()
+
+    return transcript
