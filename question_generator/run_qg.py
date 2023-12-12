@@ -38,6 +38,6 @@ if __name__ == "__main__":
         for qa in qa_list:
             ques, ans = qa['question'], qa['answer'] 
             try:
-                file.write(ques + ',' + ans + '\n')
+                file.write(ques + '$' + ans + '\n')
             except:
                 ...
