@@ -2,6 +2,7 @@ import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.tokenize import sent_tokenize
 from typing import List, Tuple
+from pdfgen import pdfgen
 
 custom_stopwords = ["of", "that", "an", "than", "then", "be", "as", "can", "could", "the", "to", "and", "but", "or",
                     "for", "nor", "so", "yet", "is", "am", "are", "was", "were", "has", "have", "had", "in", "on", "at",
@@ -54,12 +55,12 @@ if __name__ == "__main__":
         input_text = file.read()
     keyword_sentences = get_keywords(input_text)
 
-    print(keyword_sentences)
+    pdfgen(keyword_sentences)
     if keyword_sentences:
         print("Keyword - Sentences:")
         for keyword, sentences in keyword_sentences.items():
             print(f"\n'{keyword}':")
             for sentence in sentences:
-                print(f"  - {sentence}")z
+                print(f"  - {sentence}")
     else:
         print("No keywords found.")
