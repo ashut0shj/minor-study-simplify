@@ -11,7 +11,10 @@ def cont(dic):
 
 def get_user_input() -> str:
     """ Get text input from the user """
-    return input("Enter the text: ")
+    with open(r'/home/ashut0sh/code/minor/question_generator/trans.txt', 'r+') as file:
+        text = file.read()
+    return text
+    #return input("Enter the text: ")
 
 def text2questions(text_content: str, n=5, o=4) -> dict:
     """ Get all questions and options from text content """
@@ -28,7 +31,6 @@ def text2questions(text_content: str, n=5, o=4) -> dict:
 
 text_content = get_user_input()
 print(text_content)
-print("input done ...")
 questions_dict = text2questions(text_content)
 print("questions done !!!")
 

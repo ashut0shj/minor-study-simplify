@@ -23,7 +23,10 @@ class Transcriber:
     
     def audio_transcribe(self):
         print("Transcribing")
-        transcript = self.transcriber.transcribe(r"temp.wav")
+        try:
+            transcript = self.transcriber.transcribe(r"temp.mp3")
+        except:
+            transcript = self.transcriber.transcribe(r"temp.mpeg")
         os.remove(self.file_path)
         self.transcript = transcript.text
         return transcript.text
