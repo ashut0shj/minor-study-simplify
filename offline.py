@@ -49,22 +49,21 @@ def get_keywords(text: str, num_keywords=5) -> Tuple[List[str], List[str]]:
 
     return important_words, paragraph
 
+with open(r'trans.txt','r+') as file :
+    input_text = file.read()
+os.system('clear')
+important_words, paragraph = get_keywords(input_text)
+if important_words:
+    print("Important words:")
+    for word in important_words:
+        print(f"'{word}'")
 
-if __name__ == "__main__":
-    input_text = input("Enter the text: ")
+if paragraph:
+    print("\nUnique sentences containing important keywords in a single paragraph:")
     os.system('clear')
-    important_words, paragraph = get_keywords(input_text)
-    if important_words:
-        print("Important words:")
-        for word in important_words:
-            print(f"'{word}'")
+    with open(r'templates/summ.txt','w+') as file:
+        file.write(paragraph)
 
-    if paragraph:
-        print("\nUnique sentences containing important keywords in a single paragraph:")
-        os.system('clear')
-        with open(r'summ.txt','w+') as file:
-            file.write(paragraph)
-
-        print(paragraph)
-    else:
-        print("No unique sentences found.")
+    print(paragraph)
+else:
+    print("No unique sentences found.")

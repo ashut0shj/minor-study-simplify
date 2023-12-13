@@ -27,6 +27,15 @@ def index():
 
     return render_template('index.html')
 
+@app.route('/summ')
+def summ():
+    import offline
+    with open(r'summ.txt', 'r+') as file:
+        summary = file.read()
+    return render_template('summ.html', summary = summary )
 
+@app.route('/game')
+def game():
+    return render_template('game.html')
 
 app.run(debug=True)

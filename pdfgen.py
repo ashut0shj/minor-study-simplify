@@ -1,5 +1,3 @@
-dic = {}
-
 def pdfgen(dic):
     file = open(r"flashes.txt","w+")
 
