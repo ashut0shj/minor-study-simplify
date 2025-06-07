@@ -29,7 +29,7 @@ def index():
 
 @app.route('/summ')
 def summ():
-    import offline
+    import backend.offline as offline
     with open(r'summ.txt', 'r+') as file:
         summary = file.read()
     return render_template('summ.html', summary = summary )

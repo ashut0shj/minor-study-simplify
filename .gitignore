@@ -6,6 +6,6 @@ try.py
 /minor
 *.txt
 /__pycache__
-/venv
+backend/venv
 /question/__pycache__
 /question_generator/__pycache__
