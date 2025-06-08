@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import Home from './components/home';
 import Results from './components/trans';
 import Summary from './components/summary';
-import ObjectiveQuestions from './components/ObjectiveQuestions';
-import SubjectiveQuestions from './components/SubjectiveQuestions';
+import ObjectiveQuestions from './components/objectiveQues';
+import SubjectiveQuestions from './components/subjectiveQues';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
