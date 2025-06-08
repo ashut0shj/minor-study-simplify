@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
 
-const Results = ({ transcript, fileName, onBack, onSummaryGenerated }) => {
+const Results = ({ 
+  transcript, 
+  fileName, 
+  onBack, 
+  onSummaryGenerated, 
+  onObjectiveQuestionsGenerated,
+  onSubjectiveQuestionsGenerated
+}) => {
   const [isSummarizing, setIsSummarizing] = useState(false);
+  const [isGeneratingObjective, setIsGeneratingObjective] = useState(false);
+  const [isGeneratingSubjective, setIsGeneratingSubjective] = useState(false);
   const [error, setError] = useState('');
 
   const handleSummarize = async () => {
@@ -38,12 +47,75 @@ const Results = ({ transcript, fileName, onBack, onSummaryGenerated }) => {
     }
   };
 
-  const handleGenerateSubjective = () => {
-    console.log('Generate Subjective Questions clicked');
+  const handleGenerateObjective = async () => {
+    setIsGeneratingObjective(true);
+    setError('');
+
+    try {
+      const response = await fetch('http://localhost:8000/generate-questions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          text: transcript,
+          num_questions: 5,
+          num_options: 4
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        onObjectiveQuestionsGenerated(data);
+      } else {
+        setError('Failed to generate questions');
+      }
+    } catch (err) {
+      setError(`Error: ${err.message}`);
+    } finally {
+      setIsGeneratingObjective(false);
+    }
   };
 
-  const handleGenerateObjective = () => {
-    console.log('Generate Objective Questions clicked');
+  const handleGenerateSubjective = async () => {
+    setIsGeneratingSubjective(true);
+    setError('');
+
+    try {
+      const response = await fetch('http://localhost:8000/generate-subjective-questions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          text: transcript,
+          num_questions: 5,
+          answer_style: "all",
+          use_evaluator: true
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        onSubjectiveQuestionsGenerated(data);
+      } else {
+        setError('Failed to generate questions');
+      }
+    } catch (err) {
+      setError(`Error: ${err.message}`);
+    } finally {
+      setIsGeneratingSubjective(false);
+    }
   };
 
   return (
@@ -109,32 +181,34 @@ const Results = ({ transcript, fileName, onBack, onSummaryGenerated }) => {
 
           <button
             onClick={handleGenerateSubjective}
+            disabled={isGeneratingSubjective}
             style={{
               padding: '12px 24px',
               fontSize: '16px',
-              backgroundColor: '#17a2b8',
+              backgroundColor: isGeneratingSubjective ? '#ccc' : '#17a2b8',
               color: 'white',
               border: 'none',
               borderRadius: '4px',
-              cursor: 'pointer'
+              cursor: isGeneratingSubjective ? 'not-allowed' : 'pointer'
             }}
           >
-            Generate Subjective Questions
+            {isGeneratingSubjective ? 'Generating...' : 'Generate Subjective Questions'}
           </button>
 
           <button
             onClick={handleGenerateObjective}
+            disabled={isGeneratingObjective}
             style={{
               padding: '12px 24px',
               fontSize: '16px',
-              backgroundColor: '#ffc107',
+              backgroundColor: isGeneratingObjective ? '#ccc' : '#ffc107',
               color: 'black',
               border: 'none',
               borderRadius: '4px',
-              cursor: 'pointer'
+              cursor: isGeneratingObjective ? 'not-allowed' : 'pointer'
             }}
           >
-            Generate Objective Questions
+            {isGeneratingObjective ? 'Generating...' : 'Generate Objective Questions'}
           </button>
         </div>
       </div>
