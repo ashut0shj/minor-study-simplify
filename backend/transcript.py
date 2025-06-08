@@ -1,4 +1,5 @@
 import os
+import re
 from PIL import Image 
 from pytesseract import pytesseract 
 from pptx import Presentation
@@ -17,12 +18,25 @@ class Transcriber:
         self.media_type = file_path.split(".")[-1].lower()
         print(f"Processing file type: {self.media_type}")
         
+    def _clean_text(self, text):
+        """Clean and normalize text output"""
+        if isinstance(text, list):
+            return [self._clean_text(item) for item in text]
+            
+        # Remove extra whitespace, normalize newlines, clean up special characters
+        text = str(text).strip()
+        text = re.sub(r'\n+', '\n', text)  # Replace multiple newlines with single
+        text = re.sub(r'[ \t]+', ' ', text)  # Replace multiple spaces/tabs with single space
+        text = re.sub(r'\s*\n\s*', '\n', text)  # Clean spaces around newlines
+        text = re.sub(r'[^\x00-\x7F]+', ' ', text)  # Remove non-ASCII characters
+        return text.strip()
+
     def image_transcribe(self):
         """Extract text from images using OCR"""
         try:
             img = Image.open(self.file_path) 
             text = pytesseract.image_to_string(img)
-            return text.strip()
+            return self._clean_text(text)
         except Exception as e:
             raise Exception(f"Error processing image: {str(e)}")
         finally:
@@ -43,7 +57,7 @@ class Transcriber:
                         if text: 
                             slide_texts.append(text)
             
-            return slide_texts  # Return as list
+            return self._clean_text(slide_texts)  # Return as cleaned list
         except Exception as e:
             raise Exception(f"Error processing PowerPoint: {str(e)}")
         finally:
@@ -65,7 +79,7 @@ class Transcriber:
                         text_pages.append(page_text)
                 
                 full_text = "\n".join(text_pages)
-                return full_text
+                return self._clean_text(full_text)
         except Exception as e:
             raise Exception(f"Error processing PDF: {str(e)}")
         finally:

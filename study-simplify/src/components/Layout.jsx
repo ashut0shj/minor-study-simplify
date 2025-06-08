@@ -5,7 +5,9 @@ const Layout = () => {
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
       <nav style={{ marginBottom: '20px' }}>
-        <Link to="/" style={{ marginRight: '10px' }}>Home</Link>
+        <Link to="/" style={{ marginRight: '10px', textDecoration: 'none', color: '#007bff' }}>
+          Home
+        </Link>
       </nav>
       <Outlet />
     </div>
