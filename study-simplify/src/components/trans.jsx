@@ -1,18 +1,48 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-const Results = ({ transcript, fileName, onBack }) => {
-  const handleSummarize = () => {
-    // TODO: Add summarization functionality
-    console.log('Summarize clicked');
+const Results = ({ transcript, fileName, onBack, onSummaryGenerated }) => {
+  const [isSummarizing, setIsSummarizing] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSummarize = async () => {
+    setIsSummarizing(true);
+    setError('');
+
+    try {
+      const response = await fetch('http://localhost:8000/summarize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: transcript }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        onSummaryGenerated({
+          important_words: data.important_words,
+          summary: data.summary
+        });
+      } else {
+        setError('Failed to generate summary');
+      }
+    } catch (err) {
+      setError(`Error: ${err.message}`);
+    } finally {
+      setIsSummarizing(false);
+    }
   };
 
   const handleGenerateSubjective = () => {
-    // TODO: Add subjective question generation functionality
     console.log('Generate Subjective Questions clicked');
   };
 
   const handleGenerateObjective = () => {
-    // TODO: Add objective question generation functionality
     console.log('Generate Objective Questions clicked');
   };
 
@@ -54,20 +84,27 @@ const Results = ({ transcript, fileName, onBack }) => {
       <div style={{ marginBottom: '20px' }}>
         <h3>Choose an action:</h3>
         
+        {error && (
+          <div style={{ color: 'red', marginBottom: '10px' }}>
+            {error}
+          </div>
+        )}
+
         <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
           <button
             onClick={handleSummarize}
+            disabled={isSummarizing}
             style={{
               padding: '12px 24px',
               fontSize: '16px',
-              backgroundColor: '#28a745',
+              backgroundColor: isSummarizing ? '#ccc' : '#28a745',
               color: 'white',
               border: 'none',
               borderRadius: '4px',
-              cursor: 'pointer'
+              cursor: isSummarizing ? 'not-allowed' : 'pointer'
             }}
           >
-            Summarize Text
+            {isSummarizing ? 'Summarizing...' : 'Summarize Text'}
           </button>
 
           <button
