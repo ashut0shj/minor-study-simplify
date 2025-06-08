@@ -5,7 +5,9 @@ test.py
 try.py
 /minor
 *.txt
-/__pycache__
-backend/venv
+__pycache__/
+venv/
 /question/__pycache__
 /question_generator/__pycache__
+venv/
+backend/venv
