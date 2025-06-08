@@ -9,7 +9,7 @@ from offline import get_keywords
 
 # Import the workers function instead of direct class import
 try:
-    from workers import text_to_questions
+    from obj_q_gen.workers import text_to_questions
     print("Successfully imported text_to_questions from workers")
 except ImportError as e:
     print(f"Failed to import from workers: {e}")
