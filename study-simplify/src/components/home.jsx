@@ -385,6 +385,7 @@ const Home = () => {
           {/* Bottom Section */}
           <div className="border-t border-gray-700 pt-6 text-center">
             <div className="flex flex-col md:flex-row justify-center items-center space-y-2 md:space-y-0 md:space-x-6 text-sm text-gray-400">
+              <span><a href = 'https://github.com/ashut0shj/minor-study-simplify/'>Github Link</a></span>
               <span>Made with 💜 for students</span>
               <span className="hidden md:block">•</span>
               <span>Powered by Our Custom AI Model & React</span>
