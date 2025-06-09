@@ -1,58 +1,34 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, HelpCircle, CheckCircle, Play, Trophy, RotateCcw } from 'lucide-react';
+import { ArrowLeft, FileText, HelpCircle, CheckCircle, Trophy, RotateCcw } from 'lucide-react';
 
 const ObjectiveQuestions = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { questions, total_questions, fileName } = location.state || {};
 
-  const [gameMode, setGameMode] = useState('preview'); // 'preview', 'playing', 'results'
-  const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [showResults, setShowResults] = useState(false);
-
-  if (!questions || !fileName) {
-    navigate('/');
-    return null;
-  }
 
   const questionsArray = Object.entries(questions).map(([key, q]) => ({
     id: key,
     ...q
   }));
 
-  const startQuiz = () => {
-    setGameMode('playing');
-    setCurrentQuestion(0);
-    setSelectedAnswers({});
-    setShowResults(false);
-  };
-
-  const selectAnswer = (answer) => {
+  const selectAnswer = (questionId, answer) => {
     setSelectedAnswers(prev => ({
       ...prev,
-      [questionsArray[currentQuestion].id]: answer
+      [questionId]: answer
     }));
   };
 
-  const nextQuestion = () => {
-    if (currentQuestion < questionsArray.length - 1) {
-      setCurrentQuestion(prev => prev + 1);
-    } else {
-      finishQuiz();
-    }
-  };
-
-  const previousQuestion = () => {
-    if (currentQuestion > 0) {
-      setCurrentQuestion(prev => prev - 1);
-    }
-  };
-
-  const finishQuiz = () => {
-    setGameMode('results');
+  const submitQuiz = () => {
     setShowResults(true);
+  };
+
+  const resetQuiz = () => {
+    setSelectedAnswers({});
+    setShowResults(false);
   };
 
   const calculateScore = () => {
@@ -65,14 +41,6 @@ const ObjectiveQuestions = () => {
     return correct;
   };
 
-  const resetQuiz = () => {
-    setGameMode('preview');
-    setCurrentQuestion(0);
-    setSelectedAnswers({});
-    setShowResults(false);
-  };
-
-  const currentQ = questionsArray[currentQuestion];
   const score = calculateScore();
   const percentage = Math.round((score / questionsArray.length) * 100);
 
@@ -131,141 +99,78 @@ const ObjectiveQuestions = () => {
               <CheckCircle className="w-3 h-3" />
               <span>Total: {total_questions} questions</span>
             </div>
-            {gameMode === 'playing' && (
-              <div className="flex items-center space-x-2 text-xs text-green-600">
-                <span>Progress: {currentQuestion + 1}/{questionsArray.length}</span>
-              </div>
-            )}
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <main className="px-8 py-8 max-w-6xl mx-auto relative z-10">
+      <main className="px-8 py-8 max-w-4xl mx-auto relative z-10">
         
-        {/* Preview Mode */}
-        {gameMode === 'preview' && (
-          <div className="text-center">
-            <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-200 p-8 mb-8">
-              <div className="flex items-center justify-center space-x-2 mb-4">
-                <Play className="w-8 h-8 text-blue-600" />
-                <h2 className="text-2xl font-bold text-gray-800">Ready to Start Quiz?</h2>
-              </div>
-              <p className="text-gray-600 mb-6">
-                Test your knowledge with {questionsArray.length} questions from your study material.
-              </p>
-              <button
-                onClick={startQuiz}
-                className="inline-flex items-center bg-gradient-to-r from-blue-600 to-purple-500 text-white px-8 py-3 rounded-lg font-medium hover:shadow-lg transition-all duration-200"
-              >
-                <Play className="w-4 h-4 mr-2" />
-                Start Quiz
-              </button>
+        {!showResults ? (
+          <div className="space-y-6">
+            {/* Quiz Header */}
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">Quiz Questions</h2>
+              <p className="text-gray-600">Answer all {questionsArray.length} questions below</p>
             </div>
 
-            {/* Preview Questions */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-700 mb-4">Question Preview:</h3>
-              {questionsArray.slice(0, 3).map((q, index) => (
-                <div key={q.id} className="bg-white/50 backdrop-blur-sm rounded-lg border border-purple-100 p-4 text-left">
-                  <p className="font-medium text-gray-800">Q{index + 1}: {q.question}</p>
-                  {q.options && q.options.length > 0 && (
-                    <div className="mt-2 text-sm text-gray-600">
-                      Options: {q.options.join(', ')}
+            {/* All Questions */}
+            {questionsArray.map((q, index) => (
+              <div key={q.id} className="bg-white/70 backdrop-blur-sm rounded-xl border border-purple-200 p-6">
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                    Q{index + 1}: {q.question}
+                  </h3>
+
+                  {/* Answer Options */}
+                  {q.options && q.options.length > 0 ? (
+                    <div className="space-y-2">
+                      {q.options.map((option, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => selectAnswer(q.id, option)}
+                          className={`w-full text-left p-3 rounded-lg border transition-all duration-200 ${
+                            selectedAnswers[q.id] === option
+                              ? 'border-purple-500 bg-purple-50 text-purple-900'
+                              : 'border-gray-300 bg-white hover:border-purple-300'
+                          }`}
+                        >
+                          <div className="flex items-center space-x-3">
+                            <div className={`w-3 h-3 rounded-full border-2 ${
+                              selectedAnswers[q.id] === option
+                                ? 'border-purple-500 bg-purple-500'
+                                : 'border-gray-400'
+                            }`}>
+                            </div>
+                            <span>{option}</span>
+                          </div>
+                        </button>
+                      ))}
                     </div>
+                  ) : (
+                    <input
+                      type="text"
+                      value={selectedAnswers[q.id] || ''}
+                      onChange={(e) => selectAnswer(q.id, e.target.value)}
+                      placeholder="Type your answer here..."
+                      className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none"
+                    />
                   )}
                 </div>
-              ))}
-              {questionsArray.length > 3 && (
-                <p className="text-gray-500 text-sm">...and {questionsArray.length - 3} more questions</p>
-              )}
+              </div>
+            ))}
+
+            {/* Submit Button */}
+            <div className="text-center pt-6">
+              <button
+                onClick={submitQuiz}
+                className="bg-gradient-to-r from-blue-600 to-purple-500 text-white px-8 py-3 rounded-lg font-medium hover:shadow-lg transition-all duration-200"
+              >
+                Submit Quiz
+              </button>
             </div>
           </div>
-        )}
-
-        {/* Playing Mode */}
-        {gameMode === 'playing' && currentQ && (
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-200 p-8">
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">
-                  Question {currentQuestion + 1} of {questionsArray.length}
-                </h2>
-                <div className="bg-purple-100 px-3 py-1 rounded-full text-purple-700 text-sm font-medium">
-                  Q{currentQ.id}
-                </div>
-              </div>
-              
-              {/* Progress Bar */}
-              <div className="w-full bg-gray-200 rounded-full h-2 mb-6">
-                <div 
-                  className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${((currentQuestion + 1) / questionsArray.length) * 100}%` }}
-                ></div>
-              </div>
-
-              <h3 className="text-lg font-medium text-gray-800 mb-6">{currentQ.question}</h3>
-
-              {/* Answer Options */}
-              {currentQ.options && currentQ.options.length > 0 ? (
-                <div className="space-y-3 mb-8">
-                  {currentQ.options.map((option, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => selectAnswer(option)}
-                    className={`w-full text-left p-4 rounded-lg border transition-all duration-200 ${
-                      selectedAnswers[currentQ.id] === option
-                        ? 'border-purple-500 bg-purple-50 text-purple-900'
-                        : 'border-gray-300 bg-white hover:border-purple-300'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-3 h-3 rounded-full border-2 ${
-                        selectedAnswers[currentQ.id] === option
-                          ? 'border-purple-500 bg-purple-500'
-                          : 'border-gray-400'
-                      }`}>
-                      </div>
-                      <span className="font-medium">{option}</span>
-                    </div>
-                  </button>
-                  ))}
-                </div>
-              ) : (
-                <div className="mb-8">
-                  <input
-                    type="text"
-                    value={selectedAnswers[currentQ.id] || ''}
-                    onChange={(e) => selectAnswer(e.target.value)}
-                    placeholder="Type your answer here..."
-                    className="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none"
-                  />
-                </div>
-              )}
-
-              {/* Navigation Buttons */}
-              <div className="flex justify-between">
-                <button
-                  onClick={previousQuestion}
-                  disabled={currentQuestion === 0}
-                  className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-400 transition-colors"
-                >
-                  Previous
-                </button>
-                <button
-                  onClick={nextQuestion}
-                  disabled={!selectedAnswers[currentQ.id]}
-                  className="px-8 py-2 bg-gradient-to-r from-blue-600 to-purple-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md transition-all font-medium"
-                >
-                  {currentQuestion === questionsArray.length - 1 ? 'Submit Quiz' : 'Continue'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Results Mode */}
-        {gameMode === 'results' && (
+        ) : (
           <div className="space-y-6">
             {/* Score Card */}
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-200 p-8 text-center">
@@ -314,7 +219,7 @@ const ObjectiveQuestions = () => {
                 <CheckCircle className="w-5 h-5 text-green-600" />
                 <span>Detailed Results</span>
               </h3>
-              {questionsArray.map((q) => {
+              {questionsArray.map((q, index) => {
                 const userAnswer = selectedAnswers[q.id];
                 const isCorrect = userAnswer === q.answer;
                 return (
@@ -322,8 +227,8 @@ const ObjectiveQuestions = () => {
                     isCorrect ? 'border-green-200' : 'border-red-200'
                   }`}>
                     <div className="flex items-start justify-between mb-3">
-                      <h4 className="font-semibold text-gray-800">Q{q.id}: {q.question}</h4>
-                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      <h4 className="font-semibold text-gray-800">Q{index + 1}: {q.question}</h4>
+                      <div className={`px-3 py-1 rounded-full text-sm font-medium ${
                         isCorrect ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                       }`}>
                         {isCorrect ? 'Correct' : 'Incorrect'}

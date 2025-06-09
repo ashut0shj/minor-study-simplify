@@ -11,3 +11,5 @@ venv/
 /question_generator/__pycache__
 venv/
 backend/venv
+myenv/
+backend/myenv

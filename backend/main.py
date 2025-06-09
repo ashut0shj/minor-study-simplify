@@ -4,9 +4,10 @@ import os
 import tempfile
 from typing import Dict, Any
 from transcript import Transcriber, runner
-from summarize import get_keywords
-from sub_q_gen.questiongenerator import QuestionGenerator
-from obj_q_gen.workers import text_to_questions
+# Import the new Gemini-based modules
+from summarize import get_keywords_gemini
+from subjective import generate_subjective_questions_gemini
+from objective import generate_objective_questions_gemini
 
 app = FastAPI(title="Study Material Processor", version="1.0.0")
 
@@ -68,7 +69,6 @@ async def transcribe_file(file: UploadFile = File(...)) -> Dict[str, Any]:
         }
     
     except Exception as e:
-        # Log the actual error for debugging
         print(f"Error during transcription: {str(e)}")
         raise HTTPException(
             status_code=500,
@@ -76,7 +76,6 @@ async def transcribe_file(file: UploadFile = File(...)) -> Dict[str, Any]:
         )
     
     finally:
-        # Safely clean up the temporary file
         if temp_file_path and os.path.exists(temp_file_path):
             try:
                 os.unlink(temp_file_path)
@@ -90,13 +89,14 @@ async def summarize_text(data: Dict[str, str]) -> Dict[str, Any]:
         raise HTTPException(status_code=400, detail="No text provided for summarization")
     
     try:
-        important_words, summary_paragraph = get_keywords(text, save_debug_files=True)
+        # Using Gemini API for summarization
+        important_words, summary_paragraph = get_keywords_gemini(text, save_debug_files=True)
         
         return {
             "success": True,
             "important_words": important_words,
             "summary": summary_paragraph,
-            "message": "Text summarized successfully"
+            "message": "Text summarized successfully using Gemini"
         }
     except Exception as e:
         print(f"Error during summarization: {str(e)}")
@@ -120,36 +120,13 @@ async def generate_subjective_questions(data: Dict[str, Any]) -> Dict[str, Any]:
                        f"Questions: {num_questions}\nStyle: {answer_style}\nEvaluator: {use_evaluator}\n"
                        f"{'='*50}\n{text}")
         
-        qg = QuestionGenerator()
-        qa_list = qg.generate(
-            article=text,
-            use_evaluator=use_evaluator,
+        # Using Gemini API for subjective question generation
+        formatted_questions = generate_subjective_questions_gemini(
+            text=text,
             num_questions=num_questions,
-            answer_style=answer_style
+            answer_style=answer_style,
+            use_evaluator=use_evaluator
         )
-        
-        formatted_questions = {}
-        for i, qa_pair in enumerate(qa_list, 1):
-            question = qa_pair['question']
-            answer = qa_pair['answer']
-            
-            if isinstance(answer, list):
-                options = [option['answer'] for option in answer]
-                correct_answer = next((opt['answer'] for opt in answer if opt['correct']), options[0])
-                
-                formatted_questions[i] = {
-                    "question": question,
-                    "answer": correct_answer,
-                    "options": options,
-                    "type": "multiple_choice"
-                }
-            else:
-                formatted_questions[i] = {
-                    "question": question,
-                    "answer": answer,
-                    "options": [],
-                    "type": "subjective"
-                }
         
         debug_content = f"Generated {len(formatted_questions)} questions:\n{'='*50}\n"
         for i, q_data in formatted_questions.items():
@@ -166,7 +143,7 @@ async def generate_subjective_questions(data: Dict[str, Any]) -> Dict[str, Any]:
             "total_questions": len(formatted_questions),
             "answer_style": answer_style,
             "used_evaluator": use_evaluator,
-            "message": f"Generated {len(formatted_questions)} subjective questions"
+            "message": f"Generated {len(formatted_questions)} subjective questions using Gemini"
         }
     
     except Exception as e:
@@ -190,7 +167,8 @@ async def generate_questions(data: Dict[str, Any]) -> Dict[str, Any]:
                        f"Questions: {num_questions}\nOptions: {num_options}\n"
                        f"{'='*50}\n{text}")
         
-        questions_dict = text_to_questions(text, num_questions, num_options)
+        # Using Gemini API for objective question generation
+        questions_dict = generate_objective_questions_gemini(text, num_questions, num_options)
         
         debug_content = f"Generated {len(questions_dict)} questions:\n{'='*50}\n"
         for i, q_data in questions_dict.items():
@@ -205,7 +183,7 @@ async def generate_questions(data: Dict[str, Any]) -> Dict[str, Any]:
             "success": True,
             "questions": questions_dict,
             "total_questions": len(questions_dict),
-            "message": f"Generated {len(questions_dict)} objective questions"
+            "message": f"Generated {len(questions_dict)} objective questions using Gemini"
         }
     
     except Exception as e:
@@ -214,7 +192,6 @@ async def generate_questions(data: Dict[str, Any]) -> Dict[str, Any]:
             status_code=500,
             detail=f"Error generating questions: {str(e)}"
         )
-
 
 if __name__ == "__main__":
     import uvicorn

@@ -1,118 +1,76 @@
-import re
-from sklearn.feature_extraction.text import TfidfVectorizer
-from nltk.tokenize import sent_tokenize
-from typing import List, Tuple
 import os
+import json
+import google.generativeai as genai
+from typing import Tuple, List
 
-custom_stopwords = ["of", "that", "an", "than", "then", "be", "as", "can", "could", "the", "to", "and", "but", "or",
-                    "for", "nor", "so", "yet", "is", "am", "are", "was", "were", "has", "have", "had", "in", "on", "at",
-                    "by", "with", "about", "under", "between", "before", "after", "during", "through", "above", "below",
-                    "beside", "among", "near", "over", "from", "without", "however", "plus", "next", "up", "thus",
-                    "therefore", "this", "these", "those", "also", "furthermore", "moreover", "likewise", "meanwhile",
-                    "nonetheless", "otherwise", "similarly", "he", "his", "him", "they", "it", "not"]  # Add more words if needed
+genai.configure(api_key=os.getenv("GEMINI_API_KEY", "AIzaSyC2OHi_8f0J8nFvWUF0hFb81MwgD5A4xe0"))
+model = genai.GenerativeModel('gemini-1.5-flash')
 
+def save_debug_file(filename: str, content: str):
+    """Save debug content to file"""
+    os.makedirs('debug', exist_ok=True)
+    with open(f'debug/{filename}', 'w', encoding='utf-8') as f:
+        f.write(content)
 
-def preprocess_text(text):
-    text = re.sub(r'\b\d{1,2}/\d{1,2}/\d{4}\b', '', text)  # Remove dates
-    text = re.sub(r'\b\d{1,2}:\d{2}(?:\s*[APMapm]{2})?\b', '', text)  # Remove times
-    return text
-
-
-def get_keywords(text: str, num_keywords=5, save_debug_files=True) -> Tuple[List[str], str]:
+def get_keywords_gemini(text: str, save_debug_files: bool = True) -> Tuple[List[str], str]:
     """
-    Extract keywords and generate summary from text
+    Extract important keywords and generate summary using Gemini API
+    """
+    prompt = f"""
+    Please analyze the following text and provide:
+    1. A list of 10-15 most important keywords/key phrases that represent the core concepts
+    2. A comprehensive summary paragraph (200-300 words) that captures the main ideas and important details
     
-    Args:
-        text: Input text to process
-        num_keywords: Number of keywords to extract
-        save_debug_files: Whether to save debug files (trans.txt and summ.txt)
+    Format your response as JSON with the following structure:
+    {{
+        "keywords": ["keyword1", "keyword2", "keyword3"],
+        "summary": "Your comprehensive summary paragraph here..."
+    }}
     
-    Returns:
-        Tuple of (important_words_list, summary_paragraph)
+    Text to analyze:
+    {text}
     """
     
-    # Save input text to trans.txt for debugging
+    response = model.generate_content(prompt)
+    response_text = response.text.strip()
+    
     if save_debug_files:
-        try:
-            os.makedirs('debug', exist_ok=True)  # Create debug directory if it doesn't exist
-            with open('debug/trans.txt', 'w+', encoding='utf-8') as file:
-                file.write(text)
-        except Exception as e:
-            print(f"Warning: Could not save debug file trans.txt: {e}")
-
-    text = preprocess_text(text)
-    sentences = sent_tokenize(re.sub(r'\s+', ' ', text.strip()))
-
-    max_words = 4 if len(text.split()) < 1000 else 5
-
-    filtered_text = " ".join([word for word in text.split() if word.lower() not in custom_stopwords and not any(c.isdigit() for c in word)])
-
-    vectorizer = TfidfVectorizer()
-    tfidf_matrix = vectorizer.fit_transform([filtered_text])
-
-    feature_names = vectorizer.get_feature_names_out()
-
-    important_words = [feature_names[i] for i in tfidf_matrix.toarray()[0].argsort()[-max_words:][::-1] if
-                       len(feature_names[i]) > 3 and not any(c.isdigit() for c in feature_names[i])]
-
-    keyword_sentences = []
-
-    for keyword in important_words:
-        sentences_with_keyword = [sentence for sentence in sentences if keyword in sentence]
-        if sentences_with_keyword:
-            keyword_sentences.extend(sentences_with_keyword)
-
-    unique_sentences = list(set(keyword_sentences))
-    paragraph = " ".join(unique_sentences)
-
-    # Save summary to summ.txt for debugging
+        save_debug_file('gemini_summarize_raw_response.txt', response_text)
+    
+    # Clean JSON formatting
+    if response_text.startswith('```json'):
+        response_text = response_text.replace('```json', '').replace('```', '').strip()
+    elif response_text.startswith('```'):
+        response_text = response_text.replace('```', '').strip()
+    
+    result = json.loads(response_text)
+    keywords = result.get('keywords', [])
+    summary = result.get('summary', '')
+    
+    # Limit keywords to 15
+    keywords = keywords[:15] if len(keywords) > 15 else keywords
+    
     if save_debug_files:
-        try:
-            os.makedirs('debug', exist_ok=True)  # Create debug directory if it doesn't exist
-            with open('debug/summ.txt', 'w+', encoding='utf-8') as file:
-                file.write(paragraph)
-        except Exception as e:
-            print(f"Warning: Could not save debug file summ.txt: {e}")
+        debug_content = f"Keywords ({len(keywords)}):\n"
+        debug_content += "\n".join([f"- {kw}" for kw in keywords])
+        debug_content += f"\n\nSummary ({len(summary)} chars):\n{summary}"
+        save_debug_file('gemini_summarize_processed.txt', debug_content)
+    
+    return keywords, summary
 
-    return important_words, paragraph
-
-
-def process_from_file(file_path='trans.txt'):
+def test_summarization():
+    """Test function for the summarization module"""
+    test_text = """
+    Artificial Intelligence (AI) is a branch of computer science that aims to create intelligent machines 
+    that can think and act like humans. Machine learning is a subset of AI that enables computers to learn 
+    and improve from experience without being explicitly programmed. Deep learning, a subset of machine learning, 
+    uses neural networks with multiple layers to analyze and learn from large amounts of data. These technologies 
+    are revolutionizing various industries including healthcare, finance, transportation, and entertainment.
     """
-    Legacy function to process from file (for backward compatibility)
-    """
-    try:
-        with open(file_path, 'r+', encoding='utf-8') as file:
-            input_text = file.read()
-        
-        important_words, paragraph = get_keywords(input_text)
-        
-        if important_words:
-            print("Important words:")
-            for word in important_words:
-                print(f"'{word}'")
+    
+    keywords, summary = get_keywords_gemini(test_text)
+    print("Keywords:", keywords)
+    print("\nSummary:", summary)
 
-        if paragraph:
-            print("\nUnique sentences containing important keywords in a single paragraph:")
-            print(paragraph)
-        else:
-            print("No unique sentences found.")
-            
-        return important_words, paragraph
-        
-    except FileNotFoundError:
-        print(f"Error: File '{file_path}' not found.")
-        return [], ""
-    except Exception as e:
-        print(f"Error processing file: {e}")
-        return [], ""
-
-
-# Main execution (for standalone usage)
 if __name__ == "__main__":
-    # Check if trans.txt exists for standalone execution
-    if os.path.exists('trans.txt'):
-        os.system('clear')
-        process_from_file()
-    else:
-        print("No trans.txt file found. Use get_keywords(text) function directly or create trans.txt file.")
+    test_summarization()
