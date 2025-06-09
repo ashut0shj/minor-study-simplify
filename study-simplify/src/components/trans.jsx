@@ -29,7 +29,7 @@ const Results = () => {
     setError('');
   
     try {
-      const response = await fetch('http://localhost:8000/summarize', {
+      const response = await fetch('https://minor-study-simplify.onrender.com/summarize', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,7 +68,7 @@ const Results = () => {
     setShowObjectiveSettings(false);
   
     try {
-      const response = await fetch('http://localhost:8000/generate-questions', {
+      const response = await fetch('https://minor-study-simplify.onrender.com/generate-questions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -111,7 +111,7 @@ const Results = () => {
     setShowSubjectiveSettings(false);
   
     try {
-      const response = await fetch('http://localhost:8000/generate-subjective-questions', {
+      const response = await fetch('https://minor-study-simplify.onrender.com/generate-subjective-questions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
