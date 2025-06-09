@@ -61,7 +61,7 @@ const Home = () => {
     formData.append('file', selectedFile);
 
     try {
-      const response = await fetch('http://localhost:8000/transcribe', {
+      const response = await fetch('https://minor-study-simplify.onrender.com/transcribe', {
         method: 'POST',
         body: formData,
       });
