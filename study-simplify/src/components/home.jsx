@@ -158,21 +158,7 @@ const Home = () => {
             </h1>
           </div>
           <nav className="hidden md:flex items-center space-x-6">
-            <button 
-              onClick={() => console.log('Navigate to home')}
-              className="text-gray-600 hover:text-purple-600 transition-colors"
-            >
-              Home
-            </button>
-            <button 
-              onClick={() => console.log('Navigate to features')}
-              className="text-gray-600 hover:text-purple-600 transition-colors"
-            >
-              Features
-            </button>
-            <button className="bg-gradient-to-r from-blue-600 to-purple-500 text-white px-6 py-2 rounded-full hover:shadow-lg transition-all duration-300 transform hover:scale-105">
-              Get Started
-            </button>
+            
           </nav>
         </div>
       </header>
